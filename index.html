@@ -327,7 +327,8 @@ window.addEventListener('resize',setFullHeight);
 setFullHeight();
 
 /* 抽卡資料 */
-const backImage='9.jpg';
+/* 抽卡資料 - 修正路徑進入 images 資料夾 */
+const backImage = 'images/9.jpg'; 
 const cardImages = [
   'images/1.jpg',
   'images/22.jpg',
@@ -337,16 +338,26 @@ const cardImages = [
   'images/20.jpg',
   'images/23.jpg'
 ];
-const cardActivities={'1.jpg':'品牌紀念小物','22.jpg':'買任一雞蛋仔送1杯梔春金烏龍','3.jpg':'現折10元（塔可系列除外）','4.jpg':'金桔系列折5元','21.jpg':'點中杯升級大杯免費','20.jpg':'金桔系列現折10元','23.jpg':'第二杯10塊'};
-// 卡片權重設定（稀有卡可設定較低權重）
+
+const cardActivities = {
+  '1.jpg': '品牌紀念小物',
+  '22.jpg': '買任一雞蛋仔送1杯梔春金烏龍',
+  '3.jpg': '現折10元（塔可系列除外）',
+  '4.jpg': '金桔系列折5元',
+  '21.jpg': '點中杯升級大杯免費',
+  '20.jpg': '金桔系列現折10元',
+  '23.jpg': '第二杯10塊'
+};
+
+// 卡片權重設定 - 圖片路徑也一併加上 images/
 const cardPool = [
-  {img:'1.jpg', weight: 30},  // 普通卡
-  {img:'22.jpg', weight: 30},
-  {img:'3.jpg', weight: 30},
-  {img:'4.jpg', weight: 30},
-  {img:'21.jpg', weight: 30},
-  {img:'20.jpg', weight: 30},
-  {img:'23.jpg', weight: 10}   // 稀有卡，權重低
+  {img: 'images/1.jpg', weight: 30},
+  {img: 'images/22.jpg', weight: 30},
+  {img: 'images/3.jpg', weight: 30},
+  {img: 'images/4.jpg', weight: 30},
+  {img: 'images/21.jpg', weight: 30},
+  {img: 'images/20.jpg', weight: 30},
+  {img: 'images/23.jpg', weight: 10}
 ];
 
 function getDrawData() {
