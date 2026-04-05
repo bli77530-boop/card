@@ -18,7 +18,7 @@ html, body {
 #mobileScreen{
   width:100vw;
   height:calc(var(--vh,1vh)*100);
-  background:url('images/13.png') no-repeat center center;
+  background:url('images/13.jpg') no-repeat center center;
   background-size:cover;
   position:relative;
   overflow:hidden;
@@ -327,8 +327,7 @@ window.addEventListener('resize',setFullHeight);
 setFullHeight();
 
 /* 抽卡資料 */
-/* 抽卡資料 - 修正路徑進入 images 資料夾 */
-const backImage = 'images/9.jpg'; 
+const backImage='9.jpg';
 const cardImages = [
   'images/1.jpg',
   'images/22.jpg',
@@ -338,26 +337,16 @@ const cardImages = [
   'images/20.jpg',
   'images/23.jpg'
 ];
-
-const cardActivities = {
-  '1.jpg': '品牌紀念小物',
-  '22.jpg': '買任一雞蛋仔送1杯梔春金烏龍',
-  '3.jpg': '現折10元（塔可系列除外）',
-  '4.jpg': '金桔系列折5元',
-  '21.jpg': '點中杯升級大杯免費',
-  '20.jpg': '金桔系列現折10元',
-  '23.jpg': '第二杯10塊'
-};
-
-// 卡片權重設定 - 圖片路徑也一併加上 images/
+const cardActivities={'1.jpg':'品牌紀念小物','22.jpg':'買任一雞蛋仔送1杯梔春金烏龍','3.jpg':'現折10元（塔可系列除外）','4.jpg':'金桔系列折5元','21.jpg':'點中杯升級大杯免費','20.jpg':'金桔系列現折10元','23.jpg':'第二杯10塊'};
+// 卡片權重設定（稀有卡可設定較低權重）
 const cardPool = [
-  {img: 'images/1.jpg', weight: 30},
-  {img: 'images/22.jpg', weight: 30},
-  {img: 'images/3.jpg', weight: 30},
-  {img: 'images/4.jpg', weight: 30},
-  {img: 'images/21.jpg', weight: 30},
-  {img: 'images/20.jpg', weight: 30},
-  {img: 'images/23.jpg', weight: 10}
+  {img:'1.jpg', weight: 30},  // 普通卡
+  {img:'22.jpg', weight: 30},
+  {img:'3.jpg', weight: 30},
+  {img:'4.jpg', weight: 30},
+  {img:'21.jpg', weight: 30},
+  {img:'20.jpg', weight: 30},
+  {img:'23.jpg', weight: 10}   // 稀有卡，權重低
 ];
 
 function getDrawData() {
@@ -425,19 +414,19 @@ function startDraw() {
     cards.forEach(c => c.style.opacity = 0);
 
     // ===== 保底抽卡邏輯 =====
-    const remainingDraws = maxDraws - data.drawCount;
-    const drawnCards = data.cards;
-    const missingCards = cardImages.filter(img => !drawnCards.includes(img));
+    //const remainingDraws = maxDraws - data.drawCount;
+    //const drawnCards = data.cards;
+    //const missingCards = cardImages.filter(img => !drawnCards.includes(img));
 
-    let chosenCard;
-    if (remainingDraws <= missingCards.length) {
+    let chosenCard ='fish.png';
+    /*if (remainingDraws <= missingCards.length) {
       // 保底：從缺卡裡隨機抽一張
       const index = Math.floor(Math.random() * missingCards.length);
       chosenCard = missingCards[index];
     } else {
       // 正常抽卡
       chosenCard = drawCardByWeight(cardPool);
-    }
+    }*/
 
     showCenterCard(chosenCard);
 
