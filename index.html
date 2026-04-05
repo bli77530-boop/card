@@ -58,21 +58,47 @@ html, body {
 }
 
 .centerCard{
-  width:80vw;
-  height:calc(80vw*800/600);
-  position:absolute;
-  top:50%;
-  left:50%;
-  background-size:cover;
-  background-position:center;
-  border-radius:16px;
-  box-shadow:0 0 25px gold,0 0 50px yellow;
-  z-index:10;
-  opacity:0;
-  transform:translate(-50%,-50%) scale(0.5);
-  transition:opacity 1s, transform 1s;
+  /* 移除原本的 background、box-shadow，因為我們要改加在內層 */
+  background: transparent !important;
+  box-shadow: none !important;
+  perspective: 1000px; /* 3D 視角 */
+}
+.flip-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 帶有彈性的翻轉動畫 */
+  transform-style: preserve-3d;
+  box-shadow: 0 0 25px gold, 0 0 50px yellow;
+  border-radius: 16px;
 }
 
+/* 當卡片加上 flipped 類別時，旋轉 180 度 */
+.centerCard.flipped .flip-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-front, .flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  background-size: cover;
+  background-position: center;
+}
+
+/* 正面 */
+.flip-front {
+  background-color: white; /* 避免圖片沒載入時透明 */
+}
+
+/* 背面 */
+.flip-back {
+  transform: rotateY(180deg);
+  background-color: white;
+}
 .centerCard.show{
   opacity:1;
   transform:translate(-50%,-50%) scale(1);
@@ -441,18 +467,64 @@ function startDraw() {
 }
 
 
-function showCenterCard(imageUrl){
-  const overlay=document.getElementById('overlay');
-  overlay.style.background='rgba(0,0,0,0.4)';
-  const container=document.getElementById("cardContainer");
-  const centerCard=document.createElement("div");
-  centerCard.className="centerCard";
-  centerCard.style.backgroundImage=`url('${imageUrl}')`;
+function showCenterCard(imageUrl) {
+  const overlay = document.getElementById('overlay');
+  overlay.style.background = 'rgba(0,0,0,0.6)';
+  overlay.style.pointerEvents = 'auto'; // 讓背景可以被點擊
+
+  const container = document.getElementById("cardContainer");
+  const centerCard = document.createElement("div");
+  centerCard.className = "centerCard";
+
+  // 建立雙面卡片的 HTML 結構
+  // ⚠️ 請確保 'images/fish_back.png' 是你第二張屬性圖的正確路徑！
+  centerCard.innerHTML = `
+    <div class="flip-inner">
+      <div class="flip-front" style="background-image: url('${imageUrl}')"></div>
+      <div class="flip-back" style="background-image: url('images/fish b.png')"></div>
+    </div>
+  `;
+
   container.appendChild(centerCard);
-  currentCenterCard=centerCard;
-  requestAnimationFrame(()=>centerCard.classList.add('show'));
-  spawnStars(centerCard,20);
-  setTimeout(()=>{ overlay.style.background='rgba(0,0,0,0)'; if(centerCard){ centerCard.remove(); currentCenterCard=null;} },5000);
+  currentCenterCard = centerCard;
+  
+  requestAnimationFrame(() => centerCard.classList.add('show'));
+  spawnStars(centerCard, 20);
+
+  // --- 加入滑動偵測 (Swipe) ---
+  let startX = 0;
+  let endX = 0;
+
+  centerCard.addEventListener('touchstart', e => {
+    startX = e.changedTouches[0].screenX;
+  });
+
+  centerCard.addEventListener('touchend', e => {
+    endX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
+
+  function handleSwipe() {
+    // 滑動距離超過 50px 才算數
+    if (startX - endX > 50) {
+      // 向左滑：翻到背面
+      centerCard.classList.add('flipped');
+    } else if (endX - startX > 50) {
+      // 向右滑：翻回正面
+      centerCard.classList.remove('flipped');
+    }
+  }
+
+  // --- 改成點擊背景(黑底)關閉卡片，而不是 5 秒自動關閉 ---
+  overlay.onclick = function() {
+    if (centerCard) {
+      centerCard.remove();
+      currentCenterCard = null;
+    }
+    overlay.style.background = 'rgba(0,0,0,0)';
+    overlay.style.pointerEvents = 'none'; // 關閉後背景不可點擊
+    overlay.onclick = null; // 清除點擊事件
+  };
 }
 
 function spawnStars(target,count){
