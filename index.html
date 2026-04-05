@@ -18,7 +18,7 @@ html, body {
 #mobileScreen{
   width:100vw;
   height:calc(var(--vh,1vh)*100);
-  background:url('images/S__84344859.jpg') no-repeat center center;
+  background:url('images/S_84344859.jpg') no-repeat center center;
   background-size:cover;
   position:relative;
   overflow:hidden;
@@ -402,7 +402,13 @@ function resetDraw() {
   if(rotateInterval){ clearInterval(rotateInterval); rotateInterval=null; }
   if(centerCardTimeout){ clearTimeout(centerCardTimeout); centerCardTimeout=null; }
   if(currentCenterCard){ currentCenterCard.remove(); currentCenterCard=null; }
-  document.getElementById("cardGroup").innerHTML="";
+  
+  const group = document.getElementById("cardGroup");
+  group.innerHTML = "";
+  // 重置旋轉角度和動畫設定，準備下一次抽卡
+  group.style.transition = 'none'; 
+  group.style.transform = 'translate(-50%,-50%) rotateY(0deg)'; 
+  
   document.getElementById("overlay").style.background="rgba(0,0,0,0)";
 }
 
@@ -427,6 +433,10 @@ function startDraw() {
 
   resetDraw();
   const group = document.getElementById("cardGroup");
+  
+  // 1. 設定輪盤旋轉動畫：3秒內完成，且速度曲線為「先快後慢」(cubic-bezier)
+  group.style.transition = 'transform 3s cubic-bezier(0.25, 0.1, 0.25, 1)';
+
   const total = 7;
   let cards = [];
   for (let i = 0; i < total; i++) {
@@ -439,40 +449,36 @@ function startDraw() {
     cards.push(card);
   }
 
-  let rotation = 0;
-  rotateInterval = setInterval(() => {
-    rotation += 1;
-    group.style.transform = `translate(-50%,-50%) rotateY(${rotation}deg)`;
-  }, 20);
+  // 2. 隨機決定要停在哪一張卡片 (0 ~ 6)
+  const stopIndex = Math.floor(Math.random() * total);
+  
+  // 計算目標旋轉角度：轉 4 圈 (1440度) + 停在目標卡片的角度
+  // (為了讓該卡片正面朝向螢幕，角度用減的)
+  const targetAngle = (4 * 360) - ((stopIndex / total) * 360);
 
+  // 用很短的延遲觸發 CSS 動畫
+  setTimeout(() => {
+    group.style.transform = `translate(-50%,-50%) rotateY(${targetAngle}deg)`;
+  }, 50);
+
+  // ===== 在這裡指定抽到的卡片 =====
+  let chosenCard = 'images/fish.png'; 
+
+  // 3. 設定時間軸：轉 3 秒 + 停住等待 2 秒 = 總共 5 秒 (5000ms)
   centerCardTimeout = setTimeout(() => {
-    clearInterval(rotateInterval);
-    rotateInterval = null;
+    // 時間到，把背面的 7 張卡隱藏
     cards.forEach(c => c.style.opacity = 0);
 
-    // ===== 保底抽卡邏輯 =====
-    //const remainingDraws = maxDraws - data.drawCount;
-    //const drawnCards = data.cards;
-    //const missingCards = cardImages.filter(img => !drawnCards.includes(img));
-
-    let chosenCard ='images/fish.png';
-    /*if (remainingDraws <= missingCards.length) {
-      // 保底：從缺卡裡隨機抽一張
-      const index = Math.floor(Math.random() * missingCards.length);
-      chosenCard = missingCards[index];
-    } else {
-      // 正常抽卡
-      chosenCard = drawCardByWeight(cardPool);
-    }*/
-
+    // 揭曉最終結果 (顯示雙面卡)
     showCenterCard(chosenCard);
 
+    // 存檔紀錄
     data.drawCount++;
     data.totalDraws++;
     data.cards.push(chosenCard);
     data.lastDrawDate = new Date().toISOString().split('T')[0];
     saveDrawData(data);
-  }, 3000);
+  }, 5000); 
 }
 
 
